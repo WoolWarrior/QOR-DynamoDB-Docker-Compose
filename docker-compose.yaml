@@ -3,7 +3,7 @@ services:
   dynamoDB:
     image: amazon/dynamodb-local
     volumes:
-      - "/Users/ruizhang/Development/dynamodb_local_latest/dynamodb:/data/"
+      - "./dynamodb:/data/"
     ports:
       - "8000:8000"
     command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
