@@ -24,4 +24,5 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/theplant/cldr v0.0.0-20190423050709-9f76f7ce4ee8 // indirect
 	gopkg.in/ldap.v3 v3.1.0
+	gopkg.in/yaml.v2 v2.2.2
 )

@@ -1,7 +1,12 @@
 package main
 
 import (
+	"os"
+	"fmt"
+	"encoding/json"
+
 	"qor-started/admin"
+	"qor-started/configs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -9,6 +14,15 @@ import (
 )
 
 func main() {
+
+	file, _ := os.Open("configs.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	configuration := configs.Configuration{}
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
 	// Set up an unused virtual database in memory
 	DB, _ := gorm.Open("sqlite3", ":memory:")
@@ -23,5 +37,6 @@ func main() {
 	a.Bind(r)
 
 	// Run web app on given address and port
-	r.Run("0.0.0.0:8080")
+	// r.Run("localhost:8080")
+	r.Run(configuration.Server + configuration.ServerPort)
 }

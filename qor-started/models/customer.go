@@ -2,10 +2,12 @@ package models
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"os"
+	"fmt"
+	"encoding/json"
 	"time"
+
+	"qor-started/configs"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -49,11 +51,25 @@ var filterCustomers []Customer
 // ConfigureQorResourceDynamoDB is to configure the resource to DynamoDB CRUD
 func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 
+	file, _ := os.Open("./configs.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	configuration := configs.Configuration{}
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Println("configuration: ", configuration)
+
 	// Configure resource with DynamoDB
-	tableName := "Customers"
+	tableName := configuration.DynamoDBTable
+	// tableName := "Customers"
 	config := &aws.Config{
-		Endpoint: aws.String("http://dynamodb:8000"), 
-		// Endpoint: aws.String("http://localhost:8000"),
+		Region:   aws.String(configuration.AWSRegion),
+		// Region:   aws.String("us-west-2"),
+		// Endpoint: aws.String("http://dynamodb:8000"), 
+		// Endpoint: aws.String("http://localhost:8000"), 
+		Endpoint: aws.String(configuration.DynamoDBServer +":" + configuration.DynamoDBPort),
 	}
 
 	// Create DynamoDB client
