@@ -1,5 +1,5 @@
 {
-    "Server": "localhost",
+    "Server": "0.0.0.0",
     "ServerPort": ":8080",
     "AWSRegion": "us-west-2",
     "DynamoDBServer": "http://localhost",
