@@ -4,5 +4,11 @@
     "AWSRegion": "us-west-2",
     "DynamoDBServer": "http://dynamodb",
     "DynamoDBPort": ":8000",
-    "DynamoDBTable": "Customers"
+    "DynamoDBTable": "Customers",
+    "BaseDN": "dc=example,dc=com",
+    "Filter": "uid",
+    "ROUserName":"cn=read-only-admin,dc=example,dc=com",
+    "ROUserPass":"password",
+    "Host":"ldap.forumsys.com:389",
+    "LDAPEnable":"true"
 }

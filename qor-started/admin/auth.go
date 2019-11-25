@@ -1,9 +1,11 @@
 package admin
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -17,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"qor-started/admin/ldap"
+	"qor-started/configs"
 )
 
 // Auth is a structure to handle authentication for QOR. It will satisify the
@@ -77,12 +80,18 @@ func (a *auth) PostLogin(c *gin.Context) {
 	var client ldap.Client
 	var err error
 
+	file, _ := os.Open("./configs.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	configuration := configs.Configuration{}
+	err = decoder.Decode(&configuration)
+
 	// create a new client
 	if client, err = ldap.New(ldap.Config{
-		BaseDN: "dc=example,dc=com",
-		Filter: "uid",
-		ROUser: ldap.User{Name: "cn=read-only-admin,dc=example,dc=com", Pass: "password"},
-		Host:   "ldap.forumsys.com:389",
+		BaseDN: configuration.BaseDN,
+		Filter: configuration.Filter,
+		ROUser: ldap.User{Name: configuration.ROUserName, Pass: configuration.ROUserPass},
+		Host:   configuration.Host,
 	}); err != nil {
 		panic(err)
 	}
