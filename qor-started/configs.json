@@ -10,5 +10,5 @@
     "ROUserName":"cn=read-only-admin,dc=example,dc=com",
     "ROUserPass":"password",
     "Host":"ldap.forumsys.com:389",
-    "LDAPEnable":"true"
+    "LDAPEnable":"false"
 }

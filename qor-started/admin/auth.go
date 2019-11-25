@@ -86,26 +86,27 @@ func (a *auth) PostLogin(c *gin.Context) {
 	configuration := configs.Configuration{}
 	err = decoder.Decode(&configuration)
 
-	// create a new client
-	if client, err = ldap.New(ldap.Config{
-		BaseDN: configuration.BaseDN,
-		Filter: configuration.Filter,
-		ROUser: ldap.User{Name: configuration.ROUserName, Pass: configuration.ROUserPass},
-		Host:   configuration.Host,
-	}); err != nil {
-		panic(err)
-	}
+	if configuration.LDAPEnable == "true" {
+			if client, err = ldap.New(ldap.Config{
+			BaseDN: configuration.BaseDN,
+			Filter: configuration.Filter,
+			ROUser: ldap.User{Name: configuration.ROUserName, Pass: configuration.ROUserPass},
+			Host:   configuration.Host,
+		}); err != nil {
+			panic(err)
+		}
 
-	// email and password to authenticate
-	// email := "tesla"
-	// password := "password"
+		// email and password to authenticate
+		// email := "tesla"
+		// password := "password"
 
-	// attempt the authentication
-	if err := client.Auth(email, password); err != nil {
-		panic(err)
-	} else {
-		log.Println("Success!")
-	}
+		// attempt the authentication
+		if err := client.Auth(email, password); err != nil {
+			panic(err)
+		} else {
+			log.Println("Success!")
+		}
+	} 
 
 	session.Set(a.session.key, email)
 	fmt.Println(session)
@@ -116,6 +117,7 @@ func (a *auth) PostLogin(c *gin.Context) {
 		return
 	}
 	c.Redirect(http.StatusSeeOther, a.paths.admin)
+
 }
 
 // GetLogout allows the user to disconnect
