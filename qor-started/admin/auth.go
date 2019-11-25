@@ -1,11 +1,9 @@
 package admin
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -80,14 +78,10 @@ func (a *auth) PostLogin(c *gin.Context) {
 	var client ldap.Client
 	var err error
 
-	file, _ := os.Open("./configs.json")
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	configuration := configs.Configuration{}
-	err = decoder.Decode(&configuration)
+	configuration, _ := configs.ObtainConfig("configs.json")
 
 	if configuration.LDAPEnable == "true" {
-			if client, err = ldap.New(ldap.Config{
+		if client, err = ldap.New(ldap.Config{
 			BaseDN: configuration.BaseDN,
 			Filter: configuration.Filter,
 			ROUser: ldap.User{Name: configuration.ROUserName, Pass: configuration.ROUserPass},
@@ -106,7 +100,7 @@ func (a *auth) PostLogin(c *gin.Context) {
 		} else {
 			log.Println("Success!")
 		}
-	} 
+	}
 
 	session.Set(a.session.key, email)
 	fmt.Println(session)

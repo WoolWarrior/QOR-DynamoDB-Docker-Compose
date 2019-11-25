@@ -1,10 +1,6 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"encoding/json"
-
 	"qor-started/admin"
 	"qor-started/configs"
 
@@ -15,14 +11,7 @@ import (
 
 func main() {
 
-	file, _ := os.Open("configs.json")
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	configuration := configs.Configuration{}
-	err := decoder.Decode(&configuration)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
+	configuration, _ := configs.ObtainConfig("configs.json")
 
 	// Set up an unused virtual database in memory
 	DB, _ := gorm.Open("sqlite3", ":memory:")
