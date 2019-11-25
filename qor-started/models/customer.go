@@ -69,7 +69,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 		// Region:   aws.String("us-west-2"),
 		// Endpoint: aws.String("http://dynamodb:8000"), 
 		// Endpoint: aws.String("http://localhost:8000"), 
-		Endpoint: aws.String(configuration.DynamoDBServer +":" + configuration.DynamoDBPort),
+		Endpoint: aws.String(configuration.DynamoDBServer + configuration.DynamoDBPort),
 	}
 
 	// Create DynamoDB client
