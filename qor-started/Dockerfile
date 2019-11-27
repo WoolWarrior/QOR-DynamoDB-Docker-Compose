@@ -1,8 +1,9 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 
 # Start from the latest golang base image
-FROM golang:1.13
+FROM golang:alpine3.10  as builder
 
+RUN apk --no-cache add build-base gcc
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
@@ -16,7 +17,14 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main .
+RUN CGO_ENABLED=1 go build -o main . 
+
+FROM alpine:3.10
+
+WORKDIR /app
+RUN apk --no-cache add tzdata ca-certificates libc6-compat libgcc libstdc++
+
+COPY --from=builder /app /app
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
