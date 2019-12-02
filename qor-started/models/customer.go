@@ -31,11 +31,13 @@ type Customer struct {
 	Email         string
 	CreatedAtTime time.Time
 	UpdatedAtTime time.Time
-	DeletedAt     *time.Time `sql:"index"`
-	Surname       string
-	FirstName     string
-	PhoneNumber   string
-	Description   string
+	// DeletedAt     *time.Time `sql:"index"`
+	// DeletedAtTime time.Time
+	Surname     string
+	FirstName   string
+	PhoneNumber string
+	Description string
+	Active      bool
 }
 
 // DeepCopy method is to copy interface object
@@ -186,6 +188,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 			if customerTMP.ID == "" {
 				customerTMP.ID = newUUID.String()
 				customerTMP.CreatedAtTime = time.Now()
+				customerTMP.Active = true
 			}
 			customerTMP.UpdatedAtTime = time.Now()
 
@@ -198,6 +201,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 					"#D": aws.String("Description"),
 					"#C": aws.String("CreatedAtTime"),
 					"#U": aws.String("UpdatedAtTime"),
+					"#A": aws.String("Active"),
 				},
 				ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 					":email": {
@@ -221,6 +225,9 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 					":updatedattime": {
 						S: aws.String(customerTMP.UpdatedAtTime.Format(time.RFC3339)),
 					},
+					":active": {
+						BOOL: aws.Bool(customerTMP.Active),
+					},
 				},
 
 				Key: map[string]*dynamodb.AttributeValue{
@@ -230,7 +237,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 				},
 				ReturnValues:     aws.String("UPDATED_NEW"),
 				TableName:        aws.String(tableName),
-				UpdateExpression: aws.String("SET #E =:email, #S =:surname, #F =:firstname, #P =:phonenumber, #D =:description, #C =:createdattime, #U =:updatedattime "),
+				UpdateExpression: aws.String("SET #E =:email, #S =:surname, #F =:firstname, #P =:phonenumber, #D =:description, #C =:createdattime, #U =:updatedattime, #A =:active "),
 			}
 
 			_, err := svc.UpdateItem(input)
@@ -250,28 +257,58 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 	customer.DeleteHandler = func(result interface{}, context *qor.Context) error {
 		fmt.Println("DeleteHandler")
 		if customer.HasPermission(roles.Delete, context) {
-			// var dbCustomerTMP Customer
-			// dbCustomerTMP.ID, _ = uuid.Parse(context.ResourceID)
+			// customerIDString := context.ResourceID
+
+			// input := &dynamodb.DeleteItemInput{
+			// 	Key: map[string]*dynamodb.AttributeValue{
+			// 		"ID": {
+			// 			S: aws.String(customerIDString),
+			// 		},
+			// 	},
+			// 	TableName: aws.String(tableName),
+			// }
+
+			// _, err := svc.DeleteItem(input)
+			// if err != nil {
+			// 	fmt.Println("Got error calling DeleteItem")
+			// 	fmt.Println(err.Error())
+			// 	return nil
+			// }
+
+			// fmt.Println("Deleted ", customerIDString)
+
+			// return err
 
 			customerIDString := context.ResourceID
 
-			input := &dynamodb.DeleteItemInput{
+			// input to define the data to
+			input := &dynamodb.UpdateItemInput{
+				ExpressionAttributeNames: map[string]*string{
+					"#A": aws.String("Active"),
+				},
+				ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+					":active": {
+						BOOL: aws.Bool(false),
+					},
+				},
+
 				Key: map[string]*dynamodb.AttributeValue{
 					"ID": {
 						S: aws.String(customerIDString),
 					},
 				},
-				TableName: aws.String(tableName),
+				ReturnValues:     aws.String("UPDATED_NEW"),
+				TableName:        aws.String(tableName),
+				UpdateExpression: aws.String("SET #A =:active "),
 			}
 
-			_, err := svc.DeleteItem(input)
+			_, err := svc.UpdateItem(input)
+
 			if err != nil {
-				fmt.Println("Got error calling DeleteItem")
 				fmt.Println(err.Error())
-				return nil
+			} else {
+				fmt.Println("Successfully deactive ", customerIDString)
 			}
-
-			fmt.Println("Deleted ", customerIDString)
 
 			return err
 		}
@@ -287,7 +324,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 		fmt.Println("SearchHandler")
 
 		filt := expression.Name("Email").Equal(expression.Value(keyword))
-		proj := expression.NamesList(expression.Name("ID"), expression.Name("CreatedAtTime"), expression.Name("UpdatedAtTime"), expression.Name("Email"), expression.Name("PhoneNumber"), expression.Name("Surname"), expression.Name("FirstName"), expression.Name("Description"))
+		proj := expression.NamesList(expression.Name("ID"), expression.Name("CreatedAtTime"), expression.Name("UpdatedAtTime"), expression.Name("Email"), expression.Name("PhoneNumber"), expression.Name("Surname"), expression.Name("FirstName"), expression.Name("Description"), expression.Name("Active"))
 		expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
 
 		if err != nil {
