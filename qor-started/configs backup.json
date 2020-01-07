@@ -1,7 +1,7 @@
 {
     "Server": "0.0.0.0",
     "ServerPort": ":8080",
-    "AWSRegion": "eu-central-1",
+    "AWSRegion": "us-west-2",
     "DynamoDBServer": "http://dynamodb",
     "DynamoDBPort": ":8000",
     "DynamoDBTable": "Customers",

@@ -55,15 +55,15 @@ func New(db *gorm.DB, prefix, cookiesecret string) *Admin {
 		AssetFS:  bindatafs.AssetFS.NameSpace("admin"),
 	})
 	customerResource := a.adm.AddResource(&models.Customer{})
-	customerResource.NewAttrs("-CreatedAtTime", "-UpdatedAtTime")
-	customerResource.EditAttrs("-ID")
-	customerResource.ShowAttrs("-ID")
-	customerResource.Meta(&admin.Meta{
-		Name: "CreatedAtTime", Type: "readonly",
-	})
-	customerResource.Meta(&admin.Meta{
-		Name: "UpdatedAtTime", Type: "readonly",
-	})
+	// customerResource.NewAttrs("-CreatedAtTime", "-UpdatedAtTime")
+	// customerResource.EditAttrs("-ID")
+	// customerResource.ShowAttrs("-ID")
+	// customerResource.Meta(&admin.Meta{
+	// 	Name: "CreatedAtTime", Type: "readonly",
+	// })
+	// customerResource.Meta(&admin.Meta{
+	// 	Name: "UpdatedAtTime", Type: "readonly",
+	// })
 
 	// models.ConfigureQorResource(customerResource)
 	models.ConfigureQorResourceDynamoDB(customerResource) //to run DynamoDB local: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb

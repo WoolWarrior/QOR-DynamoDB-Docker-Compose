@@ -64,7 +64,7 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 		// Region:   aws.String("us-west-2"),
 		// Endpoint: aws.String("http://dynamodb:8000"),
 		// Endpoint: aws.String("http://localhost:8000"),
-		Endpoint: aws.String(configuration.DynamoDBServer + configuration.DynamoDBPort),
+		// Endpoint: aws.String(configuration.DynamoDBServer + configuration.DynamoDBPort),
 	}
 
 	// Create DynamoDB client
@@ -121,40 +121,40 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 		if customer.HasPermission(roles.Read, context) {
 
 			if len(filterCustomers) == 0 {
-				// input := &dynamodb.ScanInput{
-				// 	TableName: aws.String(tableName),
-				// }
+				input := &dynamodb.ScanInput{
+					TableName: aws.String(tableName),
+				}
 
-				// resultFromDB, err := svc.Scan(input)
+				resultFromDB, err := svc.Scan(input)
 
-				// if err != nil {
-				// 	fmt.Println("Query API call failed:")
-				// 	fmt.Println((err.Error()))
-				// 	os.Exit(1)
-				// }
+				if err != nil {
+					fmt.Println("Query API call failed:")
+					fmt.Println((err.Error()))
+					os.Exit(1)
+				}
 
-				// // create a slice to store result
-				// dbCustomers := make([]Customer, 0)
-				// numResult := 0
+				// create a slice to store result
+				dbCustomers := make([]Customer, 0)
+				numResult := 0
 
-				// for _, i := range resultFromDB.Items {
-				// 	dbcustomersTMP := Customer{}
-				// 	err = dynamodbattribute.UnmarshalMap(i, &dbcustomersTMP)
-				// 	if err != nil {
-				// 		fmt.Println("Got error unmarshalling:")
-				// 		fmt.Println(err.Error())
-				// 		os.Exit(1)
-				// 	}
-				// 	dbCustomers = append(dbCustomers, dbcustomersTMP)
-				// 	numResult++
+				for _, i := range resultFromDB.Items {
+					dbcustomersTMP := Customer{}
+					err = dynamodbattribute.UnmarshalMap(i, &dbcustomersTMP)
+					if err != nil {
+						fmt.Println("Got error unmarshalling:")
+						fmt.Println(err.Error())
+						os.Exit(1)
+					}
+					dbCustomers = append(dbCustomers, dbcustomersTMP)
+					numResult++
 
-				// }
+				}
 
-				// DeepCopy(dbCustomers, &result)
+				DeepCopy(dbCustomers, &result)
 
-				// fmt.Println("Found", numResult, "result(s) as below: ", dbCustomers)
+				fmt.Println("Found", numResult, "result(s) as below: ", dbCustomers)
 
-				// return err
+				return err
 				return nil
 			} else {
 				dbCustomers := filterCustomers
@@ -235,10 +235,12 @@ func ConfigureQorResourceDynamoDB(r resource.Resourcer) {
 						S: aws.String(customerTMP.ID),
 					},
 				},
-				ReturnValues:     aws.String("UPDATED_NEW"),
-				TableName:        aws.String(tableName),
+				ReturnValues: aws.String("UPDATED_NEW"),
+				TableName:    aws.String(tableName),
+
 				UpdateExpression: aws.String("SET #E =:email, #S =:surname, #F =:firstname, #P =:phonenumber, #D =:description, #C =:createdattime, #U =:updatedattime, #A =:active "),
 			}
+			fmt.Println(customerTMP.ID)
 
 			_, err := svc.UpdateItem(input)
 

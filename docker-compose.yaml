@@ -1,17 +1,17 @@
 version: '3'
 services:
-  dynamoDB:
-    image: amazon/dynamodb-local
-    volumes:
-      - "./dynamodb:/data/"
-    ports:
-      - "8000:8000"
-    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
-    user: "0:1000"
+  # dynamoDB:
+  #   image: amazon/dynamodb-local
+  #   volumes:
+  #     - "./dynamodb:/data/"
+  #   ports:
+  #     - "8000:8000"
+  #   command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
+  #   user: "0:1000"
 
   qor:
-    depends_on:
-      - dynamoDB
+    # depends_on:
+    #   - dynamoDB
     build: qor-started
     image: qor-started
     volumes:
@@ -19,6 +19,6 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - AWS_ACCESS_KEY_ID=dummy
-      - AWS_SECRET_ACCESS_KEY=dummy
-      - AWS_REGION=us-west-2
+      - AWS_ACCESS_KEY_ID=NA
+      - AWS_SECRET_ACCESS_KEY=NA
+      - AWS_REGION=eu-central-1
